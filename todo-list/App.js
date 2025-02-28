@@ -1,60 +1,39 @@
 import React, {useState, useEffect} from "react";
 import {Button, FlatList, Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import DisplayList from "./Composants/DisplayList";
+import GoalInput from "./Composants/GoalInput";
 
 export default function App() {
   const [title, setTitle] = useState("");
-  const list = [
-    {
-      id : 0,
-      title : "Faire les courses",
-    },
-    {
-      id : 1,
-      title : "Monter à plus de 5000m d'altitude",
-    },
-    {
-      id : 2,
-      title : "Acheter mon premier appartement",
-    },
-  ]
-  let [goals, setGoals] = useState(list);
+  const [goals, setGoals] = useState([
+    { id: 0, title: "Faire les courses" },
+    { id: 1, title: "Monter à plus de 5000m d'altitude" },
+    { id: 2, title: "Acheter mon premier appartement" },
+  ]);
 
   useEffect(() => {
     console.log("goals :", goals)});
-  // }, [list]);
+
+  const addGoalHandler = (title) => {
+    setGoals([...goals, { id: Date.now(), title }]);
+  };
+
+  const deleteGoalHandler = (id) => {
+    setGoals(goals.filter((goal) => goal.id !== id));
+  };
 
   return (
       <View style={styles.container}>
-        { goals !== undefined &&  goals.map((goal) =>
             <View>
-              <Text>{goal.title}</Text>
-              <Pressable
-                  onPress={() =>{setGoals(goals.filter(item => item.id !== goal.id))}}
-              >
-                <Text>Supprimer</Text>
-              </Pressable>
+              <FlatList
+                  data={goals}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                      <DisplayList goal={item} onDelete={deleteGoalHandler} />
+                  )}
+              />
             </View>
-
-        )}
-
-        <View>
-          <TextInput
-              onChangeText={setTitle}
-              value={title}
-          />
-          <Pressable
-              style={styles.input}
-              onPress={(event) => {
-                console.log("event :", event)
-                const newGoal = {id: Date.now(), title: title}
-                console.log(newGoal);
-                setGoals([...goals, newGoal]);
-              }}
-          >
-            <Text>Add</Text>
-          </Pressable>
-        </View>
-
+        <GoalInput addGoal={addGoalHandler} />
       </View>
   );
 }
